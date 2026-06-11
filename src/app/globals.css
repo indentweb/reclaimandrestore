@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #080a0e;
+  --color-ink-soft: #0d1016;
+  --color-ink-card: #11151d;
+  --color-line: #1f2530;
+  --color-line-soft: #171c25;
+
+  --color-brand: #2f6fe4;
+  --color-brand-bright: #4d8bff;
+  --color-brand-deep: #16356f;
+  --color-brand-soft: #aac6f5;
+
+  --color-mist: #c5cdda;
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-oswald);
+}
+
+:root {
+  --background: #080a0e;
+  --foreground: #e9edf4;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-brand);
+  color: #ffffff;
+}
+
+/* Thin top accent rule used on section eyebrows */
+.eyebrow-rule::before {
+  content: "";
+  display: inline-block;
+  width: 28px;
+  height: 2px;
+  margin-right: 12px;
+  vertical-align: middle;
+  background: var(--color-brand);
+}
+
+/* Very subtle vertical separation between dark sections */
+.section-edge {
+  border-top: 1px solid var(--color-line-soft);
+}
