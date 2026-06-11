@@ -4,8 +4,8 @@ import SectionHeading from "./SectionHeading";
 
 export default function Booking() {
   return (
-    <section id="book" className="section-edge bg-ink-soft py-20 sm:py-28">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr]">
+    <section id="book" className="section-edge bg-ink-soft py-14 sm:py-20 lg:py-28">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-12">
         <div>
           <SectionHeading
             eyebrow="Book a Date"
@@ -13,7 +13,7 @@ export default function Booking() {
             description="Tell us about your vehicle and pick a day that works. We'll call you back to confirm the time and finalize the details."
           />
 
-          <div className="mt-8 space-y-3">
+          <div className="mt-6 hidden space-y-3 sm:block">
             <InfoRow
               title="Prefer to talk?"
               value={site.phoneDisplay}
@@ -23,7 +23,7 @@ export default function Booking() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-line bg-ink-card p-6 sm:p-8">
+        <div className="rounded-2xl border border-line bg-ink-card p-4 sm:p-6 lg:p-8">
           <BookingForm />
         </div>
       </div>

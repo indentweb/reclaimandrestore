@@ -8,7 +8,7 @@ export default async function Gallery() {
   const images = (await listGalleryImages()).slice(0, 6);
 
   return (
-    <section id="work" className="py-20 sm:py-28">
+    <section id="work" className="py-12 sm:py-20 lg:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
@@ -37,11 +37,11 @@ export default async function Gallery() {
           )}
         </div>
 
-        <div className="mt-12">
+        <div className="mt-8 sm:mt-12">
           {images.length > 0 ? (
             <GalleryGrid images={images} />
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-ink-card/50 px-6 py-16 text-center">
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-ink-card/50 px-6 py-10 text-center sm:py-16">
               <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-white p-2 ring-1 ring-line">
                 <Image
                   src="/brand/logo-monogram.png"

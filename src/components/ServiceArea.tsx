@@ -14,7 +14,7 @@ const towns = [
 
 export default function ServiceArea() {
   return (
-    <section id="area" className="section-edge py-20 sm:py-28">
+    <section id="area" className="section-edge py-14 sm:py-20 lg:py-28">
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
         <div>
           <SectionHeading
@@ -38,7 +38,7 @@ export default function ServiceArea() {
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-line bg-ink-card p-10">
+        <div className="hidden rounded-2xl border border-line bg-ink-card p-6 sm:block sm:p-10">
           <div className="flex flex-col items-center text-center">
             <span className="grid h-16 w-16 place-items-center rounded-full bg-brand/12 text-brand-bright ring-1 ring-inset ring-brand/25">
               <svg

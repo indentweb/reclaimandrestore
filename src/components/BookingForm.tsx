@@ -115,15 +115,17 @@ export default function BookingForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-5">
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Your name" name="name" placeholder="Jane Smith" required />
+    <form onSubmit={handleSubmit} className="grid gap-4 sm:gap-5">
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
+        <Field label="Your name" name="name" placeholder="Jane Smith" required autoComplete="name" />
         <Field
           label="Phone number"
           name="phone"
           type="tel"
           placeholder="(256) 555-0123"
           required
+          autoComplete="tel"
+          inputMode="tel"
         />
       </div>
 
@@ -132,6 +134,7 @@ export default function BookingForm() {
         name="vehicle"
         placeholder="Year, make & model — e.g. 2019 Toyota Tacoma"
         required
+        autoComplete="off"
       />
 
       <fieldset className="grid gap-3">
@@ -163,7 +166,7 @@ export default function BookingForm() {
           name="notes"
           rows={3}
           placeholder="Where should we come? Any stains, pet hair, or details we should know about?"
-          className="rounded-lg border border-line bg-ink px-4 py-3 text-white outline-none transition-colors placeholder:text-slate-500 focus:border-brand"
+          className="rounded-lg border border-line bg-ink px-4 py-3.5 text-white outline-none transition-colors placeholder:text-slate-500 focus:border-brand"
         />
       </div>
 
@@ -176,7 +179,7 @@ export default function BookingForm() {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="mt-1 inline-flex items-center justify-center gap-2 rounded-md bg-brand px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-brand-bright disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 w-full inline-flex items-center justify-center gap-2 rounded-md bg-brand px-7 py-4 text-base font-semibold text-white transition-colors hover:bg-brand-bright active:bg-brand-bright disabled:cursor-not-allowed disabled:opacity-60"
       >
         {status === "submitting" ? "Sending..." : "Request My Date"}
       </button>
@@ -195,12 +198,12 @@ function ServiceCheckbox({
   label: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-line bg-ink px-4 py-3 text-sm text-slate-200 transition-colors hover:border-brand has-checked:border-brand has-checked:bg-brand/10">
+    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-line bg-ink px-4 py-3.5 text-sm text-slate-200 transition-colors hover:border-brand has-checked:border-brand has-checked:bg-brand/10 active:bg-ink-soft">
       <input
         type="checkbox"
         name="service"
         value={value}
-        className="h-4 w-4 shrink-0 accent-brand"
+        className="h-5 w-5 shrink-0 accent-brand"
       />
       {label}
     </label>
@@ -213,12 +216,16 @@ function Field({
   type = "text",
   placeholder,
   required,
+  autoComplete,
+  inputMode,
 }: {
   label: string;
   name: string;
   type?: string;
   placeholder?: string;
   required?: boolean;
+  autoComplete?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
 }) {
   return (
     <div className="grid gap-2">
@@ -231,7 +238,9 @@ function Field({
         type={type}
         placeholder={placeholder}
         required={required}
-        className="rounded-lg border border-line bg-ink px-4 py-3 text-white outline-none transition-colors placeholder:text-slate-500 focus:border-brand scheme-dark"
+        autoComplete={autoComplete}
+        inputMode={inputMode}
+        className="rounded-lg border border-line bg-ink px-4 py-3.5 text-white outline-none transition-colors placeholder:text-slate-500 focus:border-brand scheme-dark"
       />
     </div>
   );

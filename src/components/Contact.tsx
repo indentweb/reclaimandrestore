@@ -2,9 +2,9 @@ import { site } from "@/lib/site";
 
 export default function Contact() {
   return (
-    <section id="contact" className="section-edge py-20 sm:py-24">
+    <section id="contact" className="section-edge hidden py-14 sm:py-20 md:block lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-2xl border border-line bg-ink-card px-8 py-14 sm:px-16">
+          <div className="relative overflow-hidden rounded-2xl border border-line bg-ink-card px-5 py-10 sm:px-8 sm:py-14 md:px-16">
           <div className="absolute inset-0 bg-[radial-gradient(90%_120%_at_100%_0%,rgba(47,111,228,0.16),transparent_60%)]" />
           <div className="relative grid items-center gap-8 md:grid-cols-[1.4fr_1fr]">
             <div>
@@ -19,7 +19,7 @@ export default function Contact() {
             <div className="flex flex-col gap-3 md:items-end">
               <a
                 href={site.phoneHref}
-                className="inline-flex items-center justify-center gap-3 rounded-md bg-brand px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-brand-bright"
+                className="inline-flex w-full items-center justify-center gap-3 rounded-md bg-brand px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-brand-bright active:bg-brand-bright md:w-auto"
               >
                 <svg
                   className="h-5 w-5"
@@ -36,7 +36,7 @@ export default function Contact() {
               </a>
               <a
                 href="#book"
-                className="inline-flex items-center justify-center gap-2 rounded-md border border-line px-8 py-4 text-base font-semibold text-white transition-colors hover:border-brand-bright"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-line px-8 py-4 text-base font-semibold text-white transition-colors hover:border-brand-bright active:border-brand-bright md:w-auto"
               >
                 Book online
               </a>

@@ -4,7 +4,7 @@ import { site, services } from "@/lib/site";
 
 export default function Footer() {
   return (
-    <footer className="section-edge bg-ink py-14">
+    <footer className="section-edge bg-ink pb-24 pt-10 sm:pb-14 sm:pt-14 md:pb-14">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">

@@ -34,7 +34,7 @@ const icons: Record<string, React.ReactNode> = {
 
 export default function Services() {
   return (
-    <section id="services" className="py-20 sm:py-28">
+    <section id="services" className="py-14 sm:py-20 lg:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
           eyebrow="Our Services"
@@ -42,11 +42,11 @@ export default function Services() {
           description="From a quick interior refresh to a full restoration, we bring professional-grade tools and products directly to you."
         />
 
-        <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2">
+        <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:mt-12">
           {services.map((service) => (
             <div
               key={service.id}
-              className="bg-ink-card p-8 transition-colors hover:bg-ink-soft"
+              className="bg-ink-card p-5 transition-colors hover:bg-ink-soft sm:p-8"
             >
               <span className="grid h-12 w-12 place-items-center rounded-lg bg-brand/12 text-brand-bright ring-1 ring-inset ring-brand/25">
                 <svg

@@ -25,18 +25,18 @@ const steps = [
 
 export default function Process() {
   return (
-    <section id="process" className="section-edge bg-ink-soft py-20 sm:py-28">
+    <section id="process" className="section-edge bg-ink-soft py-14 sm:py-20 lg:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
           eyebrow="How It Works"
           title="A simple, straightforward process"
         />
 
-        <ol className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-8 grid grid-cols-2 gap-4 sm:mt-12 lg:grid-cols-4">
           {steps.map((step) => (
             <li
               key={step.n}
-              className="relative rounded-xl border border-line bg-ink-card p-6"
+              className="relative rounded-xl border border-line bg-ink-card p-5 sm:p-6"
             >
               <span className="font-display text-2xl font-semibold text-brand-bright">
                 {step.n}
