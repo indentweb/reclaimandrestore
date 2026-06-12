@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { site } from "@/lib/site";
+import { getSiteContent } from "@/lib/content";
 
 const navLinks = [
   { href: "/#services", label: "Services" },
@@ -10,14 +10,16 @@ const navLinks = [
   { href: "/#book", label: "Book" },
 ];
 
-export default function Header() {
+export default async function Header() {
+  const { phoneDisplay, phoneHref, tagline, logoUrl } = await getSiteContent();
+
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-ink/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-3">
           <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-md bg-white p-1 ring-1 ring-line">
             <Image
-              src="/brand/logo-monogram.png"
+              src={logoUrl}
               alt="Reclaim & Restore"
               width={40}
               height={40}
@@ -30,7 +32,7 @@ export default function Header() {
               Reclaim <span className="text-brand-bright">&amp;</span> Restore
             </span>
             <span className="text-[10px] uppercase tracking-[0.22em] text-slate-400">
-              {site.tagline}
+              {tagline}
             </span>
           </span>
         </Link>
@@ -48,9 +50,9 @@ export default function Header() {
         </nav>
 
         <a
-          href={site.phoneHref}
+          href={phoneHref}
           className="inline-flex items-center gap-2 rounded-md bg-brand px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-bright sm:px-4"
-          aria-label={`Call ${site.phoneDisplay}`}
+          aria-label={`Call ${phoneDisplay}`}
         >
           <svg
             className="h-4 w-4 shrink-0"
@@ -64,7 +66,7 @@ export default function Header() {
           >
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z" />
           </svg>
-          <span className="hidden sm:inline">{site.phoneDisplay}</span>
+          <span className="hidden sm:inline">{phoneDisplay}</span>
         </a>
       </div>
     </header>

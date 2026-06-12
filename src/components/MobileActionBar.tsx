@@ -1,11 +1,14 @@
-import { site } from "@/lib/site";
+import { getSiteContent } from "@/lib/content";
 
-export default function MobileActionBar() {
+export default async function MobileActionBar() {
+  const { phoneDisplay, phoneHref } = await getSiteContent();
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-ink md:hidden">
       <a
-        href={site.phoneHref}
+        href={phoneHref}
         className="flex flex-1 items-center justify-center gap-2.5 border-r border-line bg-ink-card py-4 text-sm font-semibold text-white transition-colors active:bg-ink-soft"
+        aria-label={`Call ${phoneDisplay}`}
       >
         <svg
           className="h-5 w-5 shrink-0 text-brand-bright"

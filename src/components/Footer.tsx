@@ -1,8 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { site, services } from "@/lib/site";
+import { getSiteContent } from "@/lib/content";
 
-export default function Footer() {
+export default async function Footer() {
+  const { phoneDisplay, phoneHref, serviceArea, services, businessName, logoUrl } =
+    await getSiteContent();
+
   return (
     <footer className="section-edge bg-ink pb-24 pt-10 sm:pb-14 sm:pt-14 md:pb-14">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 md:grid-cols-3">
@@ -10,8 +13,8 @@ export default function Footer() {
           <div className="flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center overflow-hidden rounded-md bg-white p-1 ring-1 ring-line">
               <Image
-                src="/brand/logo-monogram.png"
-                alt="Reclaim & Restore"
+                src={logoUrl}
+                alt={businessName}
                 width={44}
                 height={44}
                 className="h-full w-full object-contain"
@@ -23,7 +26,7 @@ export default function Footer() {
           </div>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-400">
             Mobile auto detailing — steam, shampoo, interior &amp; exterior.{" "}
-            {site.serviceArea}.
+            {serviceArea}.
           </p>
         </div>
 
@@ -50,10 +53,10 @@ export default function Footer() {
           <ul className="mt-4 space-y-3 text-sm">
             <li>
               <a
-                href={site.phoneHref}
+                href={phoneHref}
                 className="font-semibold text-brand-soft hover:text-white"
               >
-                {site.phoneDisplay}
+                {phoneDisplay}
               </a>
             </li>
             <li className="text-slate-400">North Alabama &amp; surrounding areas</li>
@@ -71,7 +74,7 @@ export default function Footer() {
 
       <div className="mx-auto mt-12 flex max-w-6xl flex-wrap items-center justify-between gap-3 border-t border-line px-4 pt-6 sm:px-6">
         <p className="text-xs text-slate-500">
-          © {new Date().getFullYear()} Reclaim &amp; Restore. All rights reserved.
+          © {new Date().getFullYear()} {businessName}. All rights reserved.
         </p>
         <Link href="/admin" className="text-xs text-slate-600 hover:text-slate-400">
           Owner login

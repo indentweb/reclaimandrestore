@@ -1,10 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Pin the workspace root so Next doesn't pick up an unrelated lockfile
-  // elsewhere on the machine.
   turbopack: {
     root: __dirname,
+  },
+  images: {
+    remotePatterns: [
+      {
+        // Supabase Storage CDN — covers all project subdomains
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
   },
 };
 

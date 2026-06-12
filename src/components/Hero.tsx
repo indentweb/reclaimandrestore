@@ -1,13 +1,10 @@
 import Image from "next/image";
-import { site } from "@/lib/site";
+import { getSiteContent } from "@/lib/content";
 
-const highlights = [
-  "Steam & shampoo deep cleaning",
-  "Interior & exterior detailing",
-  "Fully mobile — we come to you",
-];
+export default async function Hero() {
+  const { phoneDisplay, phoneHref, heroHeadline, heroDescription, heroBullets, shieldUrl } =
+    await getSiteContent();
 
-export default function Hero() {
   return (
     <section id="top" className="relative overflow-hidden border-b border-line">
       <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_80%_-10%,rgba(47,111,228,0.18),transparent_55%)]" />
@@ -19,19 +16,15 @@ export default function Hero() {
           </p>
 
           <h1 className="mt-4 font-display text-3xl font-semibold leading-[1.05] tracking-tight text-white sm:mt-6 sm:text-5xl lg:text-[3.5rem]">
-            Professional detailing,
-            <br />
-            done right in your driveway.
+            {heroHeadline}
           </h1>
 
           <p className="mt-4 hidden max-w-xl text-lg leading-relaxed text-mist sm:mt-6 sm:block">
-            Reclaim &amp; Restore brings full-service interior and exterior
-            detailing to your home or workplace. Steam cleaning, shampoo and
-            extraction, and a finish that looks and feels brand new.
+            {heroDescription}
           </p>
 
           <ul className="mt-5 space-y-2.5 sm:mt-8 sm:space-y-3">
-            {highlights.map((item) => (
+            {heroBullets.map((item) => (
               <li key={item} className="flex items-center gap-3 text-sm text-slate-200">
                 <svg
                   className="h-5 w-5 shrink-0 text-brand-bright"
@@ -57,10 +50,10 @@ export default function Hero() {
               Book a Date
             </a>
             <a
-              href={site.phoneHref}
+              href={phoneHref}
               className="inline-flex items-center justify-center gap-2 rounded-md border border-line px-7 py-3.5 text-base font-semibold text-white transition-colors hover:border-brand-bright active:border-brand-bright"
             >
-              Call {site.phoneDisplay}
+              Call {phoneDisplay}
             </a>
           </div>
         </div>
@@ -68,7 +61,7 @@ export default function Hero() {
         <div className="relative mx-auto hidden w-full max-w-sm sm:block">
           <div className="rounded-2xl border border-line bg-white p-8 shadow-[0_30px_80px_-30px_rgba(47,111,228,0.45)]">
             <Image
-              src="/brand/logo-shield.png"
+              src={shieldUrl}
               alt="Reclaim & Restore — Restoration Services"
               width={576}
               height={1024}

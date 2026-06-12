@@ -1,4 +1,4 @@
-import { services } from "@/lib/site";
+import { getSiteContent } from "@/lib/content";
 import SectionHeading from "./SectionHeading";
 
 const icons: Record<string, React.ReactNode> = {
@@ -32,7 +32,9 @@ const icons: Record<string, React.ReactNode> = {
   ),
 };
 
-export default function Services() {
+export default async function Services() {
+  const { services } = await getSiteContent();
+
   return (
     <section id="services" className="py-14 sm:py-20 lg:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -59,7 +61,7 @@ export default function Services() {
                   strokeLinejoin="round"
                   aria-hidden="true"
                 >
-                  {icons[service.id]}
+                  {icons[service.id] ?? null}
                 </svg>
               </span>
               <h3 className="mt-5 text-xl font-semibold text-white">

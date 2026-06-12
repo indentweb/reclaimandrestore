@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import AdminDashboard from "@/components/AdminDashboard";
 
 export const metadata: Metadata = {
@@ -10,12 +8,8 @@ export const metadata: Metadata = {
 
 export default function AdminPage() {
   return (
-    <>
-      <Header />
-      <main className="flex-1">
-        <AdminDashboard />
-      </main>
-      <Footer />
-    </>
+    <main className="flex-1">
+      <AdminDashboard />
+    </main>
   );
 }

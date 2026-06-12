@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from "fs";
 import path from "path";
-import { GALLERY_DIR, listGalleryImages } from "@/lib/gallery";
+import { serverClient, GALLERY_BUCKET } from "@/lib/supabase";
+import { listGalleryImages } from "@/lib/gallery";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,13 +22,6 @@ const EXT_BY_TYPE: Record<string, string> = {
 };
 const MAX_BYTES = 12 * 1024 * 1024; // 12 MB per image
 
-function authorized(request: Request, formPassword?: string | null) {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return false;
-  const header = request.headers.get("x-admin-password");
-  return header === expected || formPassword === expected;
-}
-
 function slugify(value: string) {
   return value
     .toLowerCase()
@@ -43,27 +36,31 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!process.env.ADMIN_PASSWORD) {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
     return NextResponse.json(
-      { ok: false, error: "Uploads are not configured. Set ADMIN_PASSWORD." },
+      { ok: false, error: "Storage is not configured." },
       { status: 503 },
     );
   }
 
-  const form = await request.formData();
-  const password = form.get("password");
-  if (!authorized(request, typeof password === "string" ? password : null)) {
-    return NextResponse.json({ ok: false, error: "Incorrect password." }, { status: 401 });
+  // Validate auth token forwarded from the browser client session.
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
   }
 
+  const form = await request.formData();
   const files = form.getAll("files").filter((f): f is File => f instanceof File);
   if (files.length === 0) {
     return NextResponse.json({ ok: false, error: "No files provided." }, { status: 400 });
   }
 
-  await fs.mkdir(GALLERY_DIR, { recursive: true });
-
+  const supabase = serverClient();
   const saved: string[] = [];
+
   for (const file of files) {
     if (!ALLOWED_TYPES.has(file.type)) {
       return NextResponse.json(
@@ -82,17 +79,41 @@ export async function POST(request: Request) {
     const base = slugify(path.basename(file.name, path.extname(file.name))) || "photo";
     const filename = `${base}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}${ext}`;
     const bytes = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(path.join(GALLERY_DIR, filename), bytes);
-    saved.push(`/gallery/${filename}`);
+
+    const { error } = await supabase.storage
+      .from(GALLERY_BUCKET)
+      .upload(filename, bytes, { contentType: file.type, upsert: false });
+
+    if (error) {
+      return NextResponse.json(
+        { ok: false, error: `Failed to upload ${file.name}: ${error.message}` },
+        { status: 500 },
+      );
+    }
+
+    const { data: urlData } = supabase.storage
+      .from(GALLERY_BUCKET)
+      .getPublicUrl(filename);
+    saved.push(urlData.publicUrl);
   }
 
   return NextResponse.json({ ok: true, saved });
 }
 
 export async function DELETE(request: Request) {
-  const password = request.headers.get("x-admin-password");
-  if (!authorized(request, password)) {
-    return NextResponse.json({ ok: false, error: "Incorrect password." }, { status: 401 });
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
+    return NextResponse.json(
+      { ok: false, error: "Storage is not configured." },
+      { status: 503 },
+    );
+  }
+
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
   }
 
   let body: { name?: string };
@@ -108,10 +129,14 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ ok: false, error: "Invalid file name." }, { status: 400 });
   }
 
-  try {
-    await fs.unlink(path.join(GALLERY_DIR, name));
-  } catch {
-    return NextResponse.json({ ok: false, error: "File not found." }, { status: 404 });
+  const supabase = serverClient();
+  const { error } = await supabase.storage.from(GALLERY_BUCKET).remove([name]);
+
+  if (error) {
+    return NextResponse.json(
+      { ok: false, error: error.message },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ ok: true });

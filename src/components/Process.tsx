@@ -1,29 +1,9 @@
+import { getSiteContent } from "@/lib/content";
 import SectionHeading from "./SectionHeading";
 
-const steps = [
-  {
-    n: "01",
-    title: "Request a date",
-    text: "Tell us about your vehicle, the services you want, and a day that works for you.",
-  },
-  {
-    n: "02",
-    title: "We confirm by phone",
-    text: "We call to lock in your time and answer any questions about the job.",
-  },
-  {
-    n: "03",
-    title: "We come to you",
-    text: "Our mobile setup arrives at your home or workplace — anywhere in North Alabama.",
-  },
-  {
-    n: "04",
-    title: "Reclaim & restore",
-    text: "We steam, shampoo, and detail until your vehicle looks and feels new again.",
-  },
-];
+export default async function Process() {
+  const { processSteps } = await getSiteContent();
 
-export default function Process() {
   return (
     <section id="process" className="section-edge bg-ink-soft py-14 sm:py-20 lg:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -33,9 +13,9 @@ export default function Process() {
         />
 
         <ol className="mt-8 grid grid-cols-2 gap-4 sm:mt-12 lg:grid-cols-4">
-          {steps.map((step) => (
+          {processSteps.map((step) => (
             <li
-              key={step.n}
+              key={step.id}
               className="relative rounded-xl border border-line bg-ink-card p-5 sm:p-6"
             >
               <span className="font-display text-2xl font-semibold text-brand-bright">
@@ -45,7 +25,7 @@ export default function Process() {
                 {step.title}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-mist">
-                {step.text}
+                {step.body}
               </p>
             </li>
           ))}

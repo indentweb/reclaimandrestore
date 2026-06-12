@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Oswald } from "next/font/google";
 import "./globals.css";
 import MobileActionBar from "@/components/MobileActionBar";
+import { ToastProvider } from "@/components/Toaster";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -48,8 +49,10 @@ export default function RootLayout({
       className={`${inter.variable} ${oswald.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ink text-foreground">
-        {children}
-        <MobileActionBar />
+        <ToastProvider>
+          {children}
+          <MobileActionBar />
+        </ToastProvider>
       </body>
     </html>
   );

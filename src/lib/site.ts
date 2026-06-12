@@ -4,9 +4,6 @@ export const site = {
   phoneDisplay: "256-508-5285",
   phoneHref: "tel:+12565085285",
   serviceArea: "We come to you anywhere in the North Alabama area",
-  // Where booking requests are sent. Override with NEXT_PUBLIC_BOOKING_EMAIL.
-  bookingEmail:
-    process.env.NEXT_PUBLIC_BOOKING_EMAIL ?? "bookings@reclaimandrestore.com",
 };
 
 export const services = [

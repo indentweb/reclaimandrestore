@@ -9,13 +9,6 @@ type BookingPayload = {
   notes?: string;
 };
 
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
 export async function POST(request: Request) {
   let body: BookingPayload;
   try {
@@ -27,6 +20,9 @@ export async function POST(request: Request) {
   const name = (body.name ?? "").trim();
   const phone = (body.phone ?? "").trim();
   const vehicle = (body.vehicle ?? "").trim();
+  const service = (body.service ?? "").trim();
+  const date = (body.date ?? "").trim();
+  const notes = (body.notes ?? "").trim();
 
   if (!name || !phone || !vehicle) {
     return NextResponse.json(
@@ -35,68 +31,43 @@ export async function POST(request: Request) {
     );
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.BOOKING_EMAIL ?? process.env.NEXT_PUBLIC_BOOKING_EMAIL;
-  const from = process.env.BOOKING_FROM_EMAIL ?? "Reclaim & Restore <onboarding@resend.dev>";
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-  // If email isn't configured yet, tell the client to fall back to a mailto:
-  // link so the lead is never dropped.
-  if (!apiKey || !to) {
-    return NextResponse.json({ ok: false, fallback: true });
+  if (!url || !key) {
+    return NextResponse.json({ ok: false, error: "Server not configured" }, { status: 500 });
   }
 
-  const fields: [string, string][] = [
-    ["Name", name],
-    ["Phone", phone],
-    ["Vehicle", vehicle],
-    ["Service", (body.service ?? "").trim() || "Not specified"],
-    ["Preferred date", (body.date ?? "").trim() || "Flexible"],
-    ["Location / notes", (body.notes ?? "").trim() || "—"],
-  ];
-
-  const html = `
-    <h2 style="font-family:sans-serif;color:#0c3f8f;">New booking request</h2>
-    <table style="font-family:sans-serif;border-collapse:collapse;">
-      ${fields
-        .map(
-          ([label, value]) =>
-            `<tr><td style="padding:6px 14px 6px 0;font-weight:600;color:#333;">${label}</td><td style="padding:6px 0;color:#111;">${escapeHtml(
-              value,
-            )}</td></tr>`,
-        )
-        .join("")}
-    </table>
-  `;
-  const text = fields.map(([label, value]) => `${label}: ${value}`).join("\n");
-
+  // Insert using a raw fetch with just the apikey header (anon role).
+  // The bookings table has an RLS INSERT policy for the anon role so
+  // this works without a service-role JWT.
   try {
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch(`${url}/rest/v1/bookings`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        apikey: key,
+        Prefer: "return=minimal",
       },
       body: JSON.stringify({
-        from,
-        to,
-        subject: `New booking request — ${name}`,
-        html,
-        text,
+        name,
+        phone,
+        vehicle,
+        service: service || null,
+        preferred_date: date || null,
+        notes: notes || null,
       }),
     });
 
     if (!res.ok) {
       const detail = await res.text();
-      console.error("Resend error:", detail);
-      return NextResponse.json(
-        { ok: false, fallback: true },
-        { status: 200 },
-      );
+      console.error("[book] insert failed:", res.status, detail);
+      return NextResponse.json({ ok: false, error: "Failed to save booking" }, { status: 500 });
     }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Booking email failed:", err);
-    return NextResponse.json({ ok: false, fallback: true });
+    console.error("[book] fetch failed:", err);
+    return NextResponse.json({ ok: false, error: "Server error" }, { status: 500 });
   }
 }

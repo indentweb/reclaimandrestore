@@ -1,8 +1,11 @@
-import { site } from "@/lib/site";
+import { getSiteContent } from "@/lib/content";
 import BookingForm from "./BookingForm";
 import SectionHeading from "./SectionHeading";
 
-export default function Booking() {
+export default async function Booking() {
+  const { phoneDisplay, phoneHref, serviceArea, services } =
+    await getSiteContent();
+
   return (
     <section id="book" className="section-edge bg-ink-soft py-14 sm:py-20 lg:py-28">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-12">
@@ -16,15 +19,19 @@ export default function Booking() {
           <div className="mt-6 hidden space-y-3 sm:block">
             <InfoRow
               title="Prefer to talk?"
-              value={site.phoneDisplay}
-              href={site.phoneHref}
+              value={phoneDisplay}
+              href={phoneHref}
             />
-            <InfoRow title="Service area" value={site.serviceArea} />
+            <InfoRow title="Service area" value={serviceArea} />
           </div>
         </div>
 
         <div className="rounded-2xl border border-line bg-ink-card p-4 sm:p-6 lg:p-8">
-          <BookingForm />
+          <BookingForm
+            services={services}
+            phoneDisplay={phoneDisplay}
+            phoneHref={phoneHref}
+          />
         </div>
       </div>
     </section>

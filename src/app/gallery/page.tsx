@@ -35,7 +35,7 @@ export default async function GalleryPage() {
         <section className="py-14 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             {images.length > 0 ? (
-              <GalleryGrid images={images} />
+              <GalleryGrid items={images} />
             ) : (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-ink-card/50 px-6 py-20 text-center">
                 <p className="text-lg font-medium text-white">

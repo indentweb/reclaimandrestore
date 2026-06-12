@@ -1,18 +1,10 @@
-import { site } from "@/lib/site";
+import { getSiteContent } from "@/lib/content";
 import SectionHeading from "./SectionHeading";
 
-const towns = [
-  "Huntsville",
-  "Madison",
-  "Decatur",
-  "Athens",
-  "Cullman",
-  "Scottsboro",
-  "Guntersville",
-  "Florence",
-];
+export default async function ServiceArea() {
+  const { serviceArea, serviceTowns, phoneDisplay, phoneHref } =
+    await getSiteContent();
 
-export default function ServiceArea() {
   return (
     <section id="area" className="section-edge py-14 sm:py-20 lg:py-28">
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
@@ -20,11 +12,11 @@ export default function ServiceArea() {
           <SectionHeading
             eyebrow="Service Area"
             title="We come to you"
-            description={`${site.serviceArea}. There's no need to drop your vehicle off or wait at a shop — we bring the complete detailing setup to your driveway or workplace.`}
+            description={`${serviceArea}. There's no need to drop your vehicle off or wait at a shop — we bring the complete detailing setup to your driveway or workplace.`}
           />
 
           <ul className="mt-8 flex flex-wrap gap-2.5">
-            {towns.map((town) => (
+            {serviceTowns.map((town) => (
               <li
                 key={town}
                 className="rounded-md border border-line bg-ink-card px-4 py-1.5 text-sm font-medium text-slate-200"
@@ -60,10 +52,10 @@ export default function ServiceArea() {
               call and we&apos;ll let you know.
             </p>
             <a
-              href={site.phoneHref}
+              href={phoneHref}
               className="mt-6 inline-flex items-center gap-2 rounded-md bg-brand px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-bright"
             >
-              Call {site.phoneDisplay}
+              Call {phoneDisplay}
             </a>
           </div>
         </div>

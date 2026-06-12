@@ -1,30 +1,38 @@
 "use client";
 
 import { useState } from "react";
-import { services, site } from "@/lib/site";
+import type { Service } from "@/lib/content";
+import { useToast } from "@/components/Toaster";
 
-type Status = "idle" | "submitting" | "success" | "error";
+type Status = "idle" | "submitting" | "success";
 
-export default function BookingForm() {
+export default function BookingForm({
+  services,
+  phoneDisplay,
+  phoneHref,
+}: {
+  services: Service[];
+  phoneDisplay: string;
+  phoneHref: string;
+}) {
+  const { toast } = useToast();
   const [status, setStatus] = useState<Status>("idle");
-  const [message, setMessage] = useState("");
+  const [inlineError, setInlineError] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries()) as Record<string, string>;
-    // Multiple services can be checked — join them into one field.
     data.service = formData.getAll("service").join(", ");
 
     if (!data.service) {
-      setStatus("error");
-      setMessage("Please select at least one service.");
+      setInlineError("Please select at least one service.");
       return;
     }
 
     setStatus("submitting");
-    setMessage("");
+    setInlineError("");
 
     try {
       const res = await fetch("/api/book", {
@@ -37,40 +45,15 @@ export default function BookingForm() {
       if (res.ok && json.ok) {
         setStatus("success");
         form.reset();
-        return;
-      }
-
-      // Email isn't configured on the server — fall back to the user's mail app
-      // so the lead is never lost.
-      if (json.fallback) {
-        openMailto(data as Record<string, string>);
-        setStatus("success");
-        form.reset();
+        toast("Booking request sent! We'll call you to confirm.", "success");
         return;
       }
 
       throw new Error(json.error ?? "Request failed");
     } catch {
-      setStatus("error");
-      setMessage(
-        `Something went wrong sending your request. Please call us at ${site.phoneDisplay}.`,
-      );
+      setStatus("idle");
+      toast(`Something went wrong. Please call us at ${phoneDisplay}.`, "error");
     }
-  }
-
-  function openMailto(data: Record<string, string>) {
-    const subject = `Booking request — ${data.name ?? ""}`;
-    const body = [
-      `Name: ${data.name ?? ""}`,
-      `Phone: ${data.phone ?? ""}`,
-      `Vehicle: ${data.vehicle ?? ""}`,
-      `Service: ${data.service ?? ""}`,
-      `Preferred date: ${data.date ?? ""}`,
-      `Location/notes: ${data.notes ?? ""}`,
-    ].join("\n");
-    window.location.href = `mailto:${site.bookingEmail}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`;
   }
 
   if (status === "success") {
@@ -98,8 +81,8 @@ export default function BookingForm() {
         </p>
         <p className="mt-1 text-sm text-slate-400">
           Need to reach us sooner? Call{" "}
-          <a href={site.phoneHref} className="font-semibold text-brand-soft">
-            {site.phoneDisplay}
+          <a href={phoneHref} className="font-semibold text-brand-soft">
+            {phoneDisplay}
           </a>
           .
         </p>
@@ -170,9 +153,9 @@ export default function BookingForm() {
         />
       </div>
 
-      {status === "error" && (
+      {inlineError && (
         <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          {message}
+          {inlineError}
         </p>
       )}
 
@@ -184,7 +167,7 @@ export default function BookingForm() {
         {status === "submitting" ? "Sending..." : "Request My Date"}
       </button>
       <p className="text-center text-xs text-slate-500">
-        We&apos;ll confirm your appointment by phone. No spam, ever.
+        We&apos;ll confirm your appointment by phone.
       </p>
     </form>
   );
