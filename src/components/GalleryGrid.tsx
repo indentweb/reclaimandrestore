@@ -119,7 +119,7 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
             {item.type === "video" ? (
               <>
                 <video
-                  src={item.src}
+                  src={item.src + "#t=0.001"}
                   preload="metadata"
                   muted
                   playsInline

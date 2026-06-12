@@ -63,7 +63,7 @@ function MediaPreview({
             <>
               {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
               <video
-                src={urls[i]}
+                src={urls[i] + "#t=0.001"}
                 preload="metadata"
                 muted
                 playsInline
@@ -758,7 +758,7 @@ function GalleryTab({ supabase }: { supabase: SupabaseClient }) {
                 >
                   {img.src.match(/\.(mp4|webm|mov|avi)(\?|$)/i) ? (
                     <>
-                      <video src={img.src} preload="metadata" muted playsInline className="absolute inset-0 h-full w-full object-cover" />
+                      <video src={img.src + "#t=0.001"} preload="metadata" muted playsInline className="absolute inset-0 h-full w-full object-cover" />
                       <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white pointer-events-none">
                         <svg viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8"><path d="M8 5v14l11-7z"/></svg>
                       </span>
