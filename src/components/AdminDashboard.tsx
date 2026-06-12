@@ -390,7 +390,7 @@ function BookingCard({
   const [adminNotes, setAdminNotes] = useState(b.admin_notes ?? "");
   const [savedNotes, setSavedNotes] = useState(b.admin_notes ?? "");
   const [savingNotes, setSavingNotes] = useState(false);
-  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   const notesDirty = adminNotes !== savedNotes;
 
@@ -402,6 +402,9 @@ function BookingCard({
   }
 
   const photos = b.car_photo_urls?.filter(Boolean) ?? [];
+
+  function lightboxPrev() { setLightboxIdx((i) => (i !== null ? (i - 1 + photos.length) % photos.length : null)); }
+  function lightboxNext() { setLightboxIdx((i) => (i !== null ? (i + 1) % photos.length : null)); }
 
   return (
     <div className="rounded-xl border border-line bg-ink-card p-5">
@@ -436,7 +439,7 @@ function BookingCard({
           <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">Customer photos</p>
           <div className="flex flex-wrap gap-2">
             {photos.map((src, i) => (
-              <button key={i} type="button" onClick={() => setLightboxSrc(src)}
+              <button key={i} type="button" onClick={() => setLightboxIdx(i)}
                 className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-line bg-ink-card focus-visible:ring-2 focus-visible:ring-brand">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={src} alt={`Car photo ${i + 1}`} className="h-full w-full object-cover" />
@@ -467,14 +470,45 @@ function BookingCard({
       <p className="mt-3 text-xs text-slate-500">Submitted {new Date(b.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
 
       {/* Photo lightbox */}
-      {lightboxSrc && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-4" onClick={() => setLightboxSrc(null)}>
+      {lightboxIdx !== null && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setLightboxIdx(null)}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={lightboxSrc} alt="Car photo" className="max-h-[90vh] max-w-full rounded-lg object-contain" onClick={(e) => e.stopPropagation()} />
-          <button type="button" onClick={() => setLightboxSrc(null)}
+          <img
+            src={photos[lightboxIdx]}
+            alt={`Car photo ${lightboxIdx + 1} of ${photos.length}`}
+            className="max-h-[90vh] max-w-full rounded-lg object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Close */}
+          <button type="button" onClick={() => setLightboxIdx(null)}
             className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-black/70 text-white hover:bg-white/20">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5"><path d="M18 6 6 18M6 6l12 12" strokeLinecap="round"/></svg>
           </button>
+
+          {/* Arrows — only show when there are multiple photos */}
+          {photos.length > 1 && (
+            <>
+              <button type="button" onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-white hover:bg-white/20">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-5 w-5"><path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <button type="button" onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-white hover:bg-white/20">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-5 w-5"><path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              {/* Dot counter */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {photos.map((_, i) => (
+                  <button key={i} type="button" onClick={(e) => { e.stopPropagation(); setLightboxIdx(i); }}
+                    className={`h-2 w-2 rounded-full transition-colors ${i === lightboxIdx ? "bg-white" : "bg-white/30"}`} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
