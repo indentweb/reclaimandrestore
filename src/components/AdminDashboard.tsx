@@ -89,7 +89,7 @@ function MediaPreview({
           <button
             type="button"
             onClick={() => onRemove(i)}
-            className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/70 text-xs text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
+            className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/70 text-xs text-white opacity-100 transition-opacity hover:bg-red-600 sm:opacity-0 sm:group-hover:opacity-100"
             aria-label="Remove"
           >
             ✕
@@ -778,7 +778,7 @@ function GalleryTab({ supabase }: { supabase: SupabaseClient }) {
                     </svg>
                   </span>
                   <button type="button" onClick={() => setConfirmDelete({ name: img.name })}
-                    className="absolute right-2 top-2 rounded-md bg-black/70 px-2.5 py-1 text-xs font-semibold text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100">
+                    className="absolute right-2 top-2 rounded-md bg-black/70 px-2.5 py-1 text-xs font-semibold text-white opacity-100 transition-opacity hover:bg-red-600 sm:opacity-0 sm:group-hover:opacity-100">
                     Delete
                   </button>
                 </div>
