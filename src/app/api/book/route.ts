@@ -7,6 +7,7 @@ type BookingPayload = {
   service?: string;
   date?: string;
   notes?: string;
+  car_photo_urls?: string[];
 };
 
 export async function POST(request: Request) {
@@ -23,6 +24,7 @@ export async function POST(request: Request) {
   const service = (body.service ?? "").trim();
   const date = (body.date ?? "").trim();
   const notes = (body.notes ?? "").trim();
+  const car_photo_urls = Array.isArray(body.car_photo_urls) ? body.car_photo_urls : [];
 
   if (!name || !phone || !vehicle) {
     return NextResponse.json(
@@ -49,14 +51,15 @@ export async function POST(request: Request) {
         apikey: key,
         Prefer: "return=minimal",
       },
-      body: JSON.stringify({
-        name,
-        phone,
-        vehicle,
-        service: service || null,
-        preferred_date: date || null,
-        notes: notes || null,
-      }),
+          body: JSON.stringify({
+            name,
+            phone,
+            vehicle,
+            service: service || null,
+            preferred_date: date || null,
+            notes: notes || null,
+            car_photo_urls: car_photo_urls.length > 0 ? car_photo_urls : null,
+          }),
     });
 
     if (!res.ok) {

@@ -25,6 +25,8 @@ type Booking = {
   notes: string | null;
   status: BookingStatus;
   created_at: string;
+  car_photo_urls: string[] | null;
+  admin_notes: string | null;
 };
 
 type GalleryImage = { src: string; name: string; uploadedAt: number };
@@ -375,6 +377,110 @@ const STATUS_COLORS: Record<BookingStatus, string> = {
   cancelled: "bg-red-500/10 text-red-400 border-red-500/30",
 };
 
+function BookingCard({
+  booking: b,
+  onStatusChange,
+  supabase,
+}: {
+  booking: Booking;
+  onStatusChange: (id: string, status: BookingStatus) => void;
+  supabase: SupabaseClient;
+}) {
+  const { toast } = useToast();
+  const [adminNotes, setAdminNotes] = useState(b.admin_notes ?? "");
+  const [savedNotes, setSavedNotes] = useState(b.admin_notes ?? "");
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
+  const notesDirty = adminNotes !== savedNotes;
+
+  async function saveNotes() {
+    setSavingNotes(true);
+    const { error } = await supabase.from("bookings").update({ admin_notes: adminNotes || null }).eq("id", b.id);
+    if (error) { toast(error.message, "error"); } else { setSavedNotes(adminNotes); toast("Note saved.", "success"); }
+    setSavingNotes(false);
+  }
+
+  const photos = b.car_photo_urls?.filter(Boolean) ?? [];
+
+  return (
+    <div className="rounded-xl border border-line bg-ink-card p-5">
+      {/* Header row */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-semibold text-white">{b.name}</p>
+          <a href={`tel:${b.phone.replace(/\D/g, "")}`} className="text-sm text-brand-soft hover:underline">{b.phone}</a>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`rounded-full border px-3 py-0.5 text-xs font-semibold ${STATUS_COLORS[b.status]}`}>{STATUS_LABELS[b.status]}</span>
+          <select value={b.status} onChange={(e) => onStatusChange(b.id, e.target.value as BookingStatus)}
+            className="rounded-md border border-line bg-ink px-2 py-1 text-xs text-slate-300 outline-none focus:border-brand">
+            {(Object.keys(STATUS_LABELS) as BookingStatus[]).map((s) => (
+              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Booking details */}
+      <div className="mt-3 grid gap-1 text-sm text-mist">
+        <p><span className="text-slate-500">Vehicle:</span> {b.vehicle}</p>
+        {b.service && <p><span className="text-slate-500">Service:</span> {b.service}</p>}
+        {b.preferred_date && <p><span className="text-slate-500">Date requested:</span> {new Date(b.preferred_date + "T00:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}</p>}
+        {b.notes && <p><span className="text-slate-500">Notes:</span> {b.notes}</p>}
+      </div>
+
+      {/* Customer car photos */}
+      {photos.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">Customer photos</p>
+          <div className="flex flex-wrap gap-2">
+            {photos.map((src, i) => (
+              <button key={i} type="button" onClick={() => setLightboxSrc(src)}
+                className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-line bg-ink-card focus-visible:ring-2 focus-visible:ring-brand">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={`Car photo ${i + 1}`} className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Admin notes */}
+      <div className="mt-4 grid gap-2">
+        <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Your private notes</p>
+        <textarea
+          rows={2}
+          value={adminNotes}
+          onChange={(e) => setAdminNotes(e.target.value)}
+          placeholder="Add internal notes about this job…"
+          className="w-full resize-none rounded-lg border border-line bg-ink px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-slate-600 focus:border-brand"
+        />
+        {notesDirty && (
+          <button type="button" disabled={savingNotes} onClick={saveNotes}
+            className="w-fit rounded-md bg-brand px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-bright disabled:opacity-50">
+            {savingNotes ? "Saving…" : "Save note"}
+          </button>
+        )}
+      </div>
+
+      <p className="mt-3 text-xs text-slate-500">Submitted {new Date(b.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+
+      {/* Photo lightbox */}
+      {lightboxSrc && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-4" onClick={() => setLightboxSrc(null)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={lightboxSrc} alt="Car photo" className="max-h-[90vh] max-w-full rounded-lg object-contain" onClick={(e) => e.stopPropagation()} />
+          <button type="button" onClick={() => setLightboxSrc(null)}
+            className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-black/70 text-white hover:bg-white/20">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5"><path d="M18 6 6 18M6 6l12 12" strokeLinecap="round"/></svg>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BookingsTab({ supabase }: { supabase: SupabaseClient }) {
   const { toast } = useToast();
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -424,30 +530,7 @@ function BookingsTab({ supabase }: { supabase: SupabaseClient }) {
       ) : (
         <div className="mt-5 grid gap-3">
           {filtered.map((b) => (
-            <div key={b.id} className="rounded-xl border border-line bg-ink-card p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-white">{b.name}</p>
-                  <a href={`tel:${b.phone.replace(/\D/g, "")}`} className="text-sm text-brand-soft hover:underline">{b.phone}</a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`rounded-full border px-3 py-0.5 text-xs font-semibold ${STATUS_COLORS[b.status]}`}>{STATUS_LABELS[b.status]}</span>
-                  <select value={b.status} onChange={(e) => updateStatus(b.id, e.target.value as BookingStatus)}
-                    className="rounded-md border border-line bg-ink px-2 py-1 text-xs text-slate-300 outline-none focus:border-brand">
-                    {(Object.keys(STATUS_LABELS) as BookingStatus[]).map((s) => (
-                      <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="mt-3 grid gap-1 text-sm text-mist">
-                <p><span className="text-slate-500">Vehicle:</span> {b.vehicle}</p>
-                {b.service && <p><span className="text-slate-500">Service:</span> {b.service}</p>}
-                {b.preferred_date && <p><span className="text-slate-500">Date requested:</span> {new Date(b.preferred_date + "T00:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}</p>}
-                {b.notes && <p><span className="text-slate-500">Notes:</span> {b.notes}</p>}
-              </div>
-              <p className="mt-3 text-xs text-slate-500">Submitted {new Date(b.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
-            </div>
+            <BookingCard key={b.id} booking={b} onStatusChange={updateStatus} supabase={supabase} />
           ))}
         </div>
       )}
