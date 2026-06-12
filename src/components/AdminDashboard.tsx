@@ -380,10 +380,12 @@ const STATUS_COLORS: Record<BookingStatus, string> = {
 function BookingCard({
   booking: b,
   onStatusChange,
+  onDelete,
   supabase,
 }: {
   booking: Booking;
   onStatusChange: (id: string, status: BookingStatus) => void;
+  onDelete: (id: string) => void;
   supabase: SupabaseClient;
 }) {
   const { toast } = useToast();
@@ -391,6 +393,17 @@ function BookingCard({
   const [savedNotes, setSavedNotes] = useState(b.admin_notes ?? "");
   const [savingNotes, setSavingNotes] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const notesRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea to fit content
+  function autoResize(el: HTMLTextAreaElement) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  useEffect(() => {
+    if (notesRef.current) autoResize(notesRef.current);
+  }, [adminNotes]);
 
   const notesDirty = adminNotes !== savedNotes;
 
@@ -399,6 +412,14 @@ function BookingCard({
     const { error } = await supabase.from("bookings").update({ admin_notes: adminNotes || null }).eq("id", b.id);
     if (error) { toast(error.message, "error"); } else { setSavedNotes(adminNotes); toast("Note saved.", "success"); }
     setSavingNotes(false);
+  }
+
+  async function handleDelete() {
+    const { error } = await supabase.from("bookings").delete().eq("id", b.id);
+    setConfirmDelete(false);
+    if (error) { toast(error.message, "error"); return; }
+    toast("Booking deleted.", "success");
+    onDelete(b.id);
   }
 
   const photos = b.car_photo_urls?.filter(Boolean) ?? [];
@@ -422,6 +443,14 @@ function BookingCard({
               <option key={s} value={s}>{STATUS_LABELS[s]}</option>
             ))}
           </select>
+          {/* Delete */}
+          <button type="button" onClick={() => setConfirmDelete(true)}
+            className="grid h-7 w-7 place-items-center rounded-md border border-line text-slate-500 hover:border-red-500/50 hover:text-red-400 transition-colors"
+            title="Delete booking">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+              <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -453,11 +482,12 @@ function BookingCard({
       <div className="mt-4 grid gap-2">
         <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Your private notes</p>
         <textarea
+          ref={notesRef}
           rows={2}
           value={adminNotes}
           onChange={(e) => setAdminNotes(e.target.value)}
           placeholder="Add internal notes about this job…"
-          className="w-full resize-none rounded-lg border border-line bg-ink px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-slate-600 focus:border-brand"
+          className="w-full resize-none overflow-hidden rounded-lg border border-line bg-ink px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-slate-600 focus:border-brand"
         />
         {notesDirty && (
           <button type="button" disabled={savingNotes} onClick={saveNotes}
@@ -511,6 +541,17 @@ function BookingCard({
           )}
         </div>
       )}
+
+      {/* Delete confirm dialog */}
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Delete this booking?"
+          message={`This will permanently remove ${b.name}'s booking. This can't be undone.`}
+          confirmLabel="Yes, delete"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
     </div>
   );
 }
@@ -540,6 +581,10 @@ function BookingsTab({ supabase }: { supabase: SupabaseClient }) {
     }
   }
 
+  function removeBooking(id: string) {
+    setBookings((prev) => prev.filter((b) => b.id !== id));
+  }
+
   const filtered = filter === "all" ? bookings : bookings.filter((b) => b.status === filter);
   const counts = bookings.reduce((acc, b) => ({ ...acc, [b.status]: (acc[b.status] ?? 0) + 1 }), {} as Record<string, number>);
 
@@ -564,7 +609,7 @@ function BookingsTab({ supabase }: { supabase: SupabaseClient }) {
       ) : (
         <div className="mt-5 grid gap-3">
           {filtered.map((b) => (
-            <BookingCard key={b.id} booking={b} onStatusChange={updateStatus} supabase={supabase} />
+            <BookingCard key={b.id} booking={b} onStatusChange={updateStatus} onDelete={removeBooking} supabase={supabase} />
           ))}
         </div>
       )}
